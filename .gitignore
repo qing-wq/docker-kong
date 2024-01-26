@@ -7,3 +7,4 @@ submit
 **/*.deb
 **/*.rpm
 **/*.apk
+.idea/
