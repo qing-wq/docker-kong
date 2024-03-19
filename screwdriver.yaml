@@ -16,11 +16,3 @@ jobs:
   main:
     requires: [~pr, ~commit]
     template: QubitPi/kong-api-gateway-release-definition-template@latest
-    secrets:
-      - AWS_WS_PKRVARS_HCL
-      - SSL_CERTIFICATE
-      - SSL_CERTIFICATE_KEY
-      - NGINX_CONFIG_FILE
-      - AWS_WS_TFVARS
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
