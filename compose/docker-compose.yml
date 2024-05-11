@@ -6,7 +6,7 @@ x-kong-config:
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
   KONG_PG_HOST: db
   KONG_PG_USER: ${KONG_PG_USER:-kong}
-  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+  KONG_PG_PASSWORD: kong
 
 volumes:
   kong_data: {}
@@ -32,8 +32,6 @@ services:
       - db
     environment:
       <<: *kong-env
-    secrets:
-      - kong_postgres_password
     networks:
       - kong-net
     restart: on-failure
@@ -46,8 +44,6 @@ services:
       - db
     environment:
       <<: *kong-env
-    secrets:
-      - kong_postgres_password
     networks:
       - kong-net
     restart: on-failure
@@ -66,8 +62,6 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
       KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
-    secrets:
-      - kong_postgres_password
     networks:
       - kong-net
     ports:
@@ -88,7 +82,9 @@ services:
       retries: 10
     restart: on-failure:5
     read_only: true
+    privileged: true
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
       - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
       - kong_tmp_vol:/tmp
       - ./config:/opt/kong
@@ -101,9 +97,7 @@ services:
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
-      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
-    secrets:
-      - kong_postgres_password
+      POSTGRES_PASSWORD: kong
     healthcheck:
       test:
         [
@@ -120,11 +114,9 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+    privileged: true
     networks:
       - kong-net
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
       - kong_data:/var/lib/postgresql/data
-
-secrets:
-  kong_postgres_password:
-    file: ./POSTGRES_PASSWORD
